@@ -1,0 +1,636 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 15.1
+-- Dumped by pg_dump version 15.1
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: SequelizeMeta; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."SequelizeMeta" (
+    name character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public."SequelizeMeta" OWNER TO postgres;
+
+--
+-- Name: exam; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.exam (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    subject_id uuid NOT NULL,
+    exam_start_time timestamp with time zone NOT NULL,
+    exam_end_time timestamp with time zone NOT NULL,
+    exam_passing_percentage numeric NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public.exam OWNER TO postgres;
+
+--
+-- Name: exam_group_mapping; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.exam_group_mapping (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    exam_id uuid NOT NULL,
+    group_id uuid NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public.exam_group_mapping OWNER TO postgres;
+
+--
+-- Name: exam_user_paper_set_mapping; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.exam_user_paper_set_mapping (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    exam_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    paper_set_id uuid NOT NULL,
+    start_time timestamp with time zone,
+    submit_time timestamp with time zone,
+    total_questions integer DEFAULT 0 NOT NULL,
+    total_question_attempted integer DEFAULT 0 NOT NULL,
+    total_correct_answers integer DEFAULT 0 NOT NULL,
+    total_marks_obtained integer DEFAULT 0 NOT NULL,
+    result boolean,
+    publish_result boolean,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public.exam_user_paper_set_mapping OWNER TO postgres;
+
+--
+-- Name: exam_user_response; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.exam_user_response (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    exam_user_attempt_id uuid NOT NULL,
+    question_answer_id uuid NOT NULL,
+    answer character varying(255) NOT NULL,
+    is_correct boolean NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public.exam_user_response OWNER TO postgres;
+
+--
+-- Name: group; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."group" (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    group_name character varying(255) NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public."group" OWNER TO postgres;
+
+--
+-- Name: group_user_mapping; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.group_user_mapping (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    group_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public.group_user_mapping OWNER TO postgres;
+
+--
+-- Name: paper_set; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.paper_set (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    subject_id uuid NOT NULL,
+    paper_set_name character varying(255) NOT NULL,
+    marks_per_question double precision NOT NULL,
+    negative_marks_per_question double precision NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone,
+    total_questions integer DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE public.paper_set OWNER TO postgres;
+
+--
+-- Name: paper_set_question_answer_mapping; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.paper_set_question_answer_mapping (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    paper_set_id uuid NOT NULL,
+    question_answer_id uuid NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public.paper_set_question_answer_mapping OWNER TO postgres;
+
+--
+-- Name: question_answer; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.question_answer (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    question text NOT NULL,
+    option1 character varying(255) NOT NULL,
+    option2 character varying(255) NOT NULL,
+    option3 character varying(255) NOT NULL,
+    option4 character varying(255) NOT NULL,
+    correct_option character varying(255) NOT NULL,
+    subject_id uuid NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public.question_answer OWNER TO postgres;
+
+--
+-- Name: subject; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.subject (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    subject_name character varying(255) NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public.subject OWNER TO postgres;
+
+--
+-- Name: user; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."user" (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    first_name character varying(255) NOT NULL,
+    last_name character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    password character varying(255) NOT NULL,
+    organization character varying(255) NOT NULL,
+    contact_number character varying(255) NOT NULL,
+    role character varying(255) NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+
+
+ALTER TABLE public."user" OWNER TO postgres;
+
+--
+-- Data for Name: SequelizeMeta; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."SequelizeMeta" (name) FROM stdin;
+20230105063348-create-uuid-extension.js
+20230105064830-create-group.js
+20230105070605-create-user.js
+20230105070836-create-group-user-mapping.js
+20230105089780-create-subject.js
+20230105093944-create-question-answer.js
+20230105101752-create-exam.js
+20230105103442-create-paper-set.js
+20230105104704-create-paper-set-question-answer-mapping.js
+20230105110110-create-exam-group-mapping.js
+20230105120518-create-exam-user-paper-set-mapping.js
+20230105121055-create-exam-user-response.js
+\.
+
+
+--
+-- Data for Name: exam; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.exam (id, subject_id, exam_start_time, exam_end_time, exam_passing_percentage, created_at, updated_at, deleted_at) FROM stdin;
+7e26ca69-8841-431a-9910-11e29be4d99d	ac464385-c569-4cbd-9a06-028e7c700181	2023-01-09 23:50:10+05:30	2023-01-09 23:56:10+05:30	50	2023-01-09 23:47:56.288+05:30	2023-01-09 23:47:56.288+05:30	\N
+4c765f1a-1cee-43a1-bf33-bea5959beaed	ac464385-c569-4cbd-9a06-028e7c700181	2023-01-10 13:02:10+05:30	2023-01-10 13:20:10+05:30	50	2023-01-10 13:01:13.588+05:30	2023-01-10 13:01:13.588+05:30	\N
+81e9adea-0f8a-4db1-a650-e2790191f901	ac464385-c569-4cbd-9a06-028e7c700181	2023-01-10 14:12:10+05:30	2023-01-10 14:30:10+05:30	50	2023-01-10 14:09:47.039+05:30	2023-01-10 14:09:47.039+05:30	\N
+\.
+
+
+--
+-- Data for Name: exam_group_mapping; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.exam_group_mapping (id, exam_id, group_id, created_at, updated_at, deleted_at) FROM stdin;
+4d86bf62-860f-4725-a469-974ed8320e81	4c765f1a-1cee-43a1-bf33-bea5959beaed	68a5e109-a1b9-4b4d-aa95-2fca509432a0	2023-01-10 13:04:32.896+05:30	2023-01-10 13:04:32.896+05:30	\N
+d8303e38-0d8c-41bb-ba6c-a72eac9a5f88	81e9adea-0f8a-4db1-a650-e2790191f901	68a5e109-a1b9-4b4d-aa95-2fca509432a0	2023-01-10 14:10:06.745+05:30	2023-01-10 14:10:06.745+05:30	\N
+\.
+
+
+--
+-- Data for Name: exam_user_paper_set_mapping; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.exam_user_paper_set_mapping (id, exam_id, user_id, paper_set_id, start_time, submit_time, total_questions, total_question_attempted, total_correct_answers, total_marks_obtained, result, publish_result, created_at, updated_at, deleted_at) FROM stdin;
+8765ba1c-a97b-47c8-92b2-47243290d85f	4c765f1a-1cee-43a1-bf33-bea5959beaed	dd5a05d0-8ab0-4524-ab9f-9ea0daf32095	a7dd5612-b402-4131-af95-be92d82f90a8	2023-01-10 13:05:53+05:30	\N	2	0	0	0	\N	\N	2023-01-10 13:05:53.401+05:30	2023-01-10 13:05:53.401+05:30	\N
+ac7ab563-cb8b-4092-a7de-d0b5a3e83c43	81e9adea-0f8a-4db1-a650-e2790191f901	dd5a05d0-8ab0-4524-ab9f-9ea0daf32095	a7dd5612-b402-4131-af95-be92d82f90a8	2023-01-10 14:12:52+05:30	2023-01-10 14:16:59.04+05:30	2	2	1	3	t	t	2023-01-10 14:12:52.057+05:30	2023-01-10 14:44:40.848+05:30	\N
+\.
+
+
+--
+-- Data for Name: exam_user_response; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.exam_user_response (id, exam_user_attempt_id, question_answer_id, answer, is_correct, created_at, updated_at, deleted_at) FROM stdin;
+6af8432d-9554-4fe0-bebd-f3b4c651aeba	8765ba1c-a97b-47c8-92b2-47243290d85f	b7bdbe82-c6d9-4b6a-8a78-b4d7705088c6	option3	f	2023-01-10 13:25:38.007+05:30	2023-01-10 13:25:38.007+05:30	\N
+4efda203-9b46-4c08-a2af-4b8e5662b227	ac7ab563-cb8b-4092-a7de-d0b5a3e83c43	b7bdbe82-c6d9-4b6a-8a78-b4d7705088c6	option3	f	2023-01-10 14:13:19.278+05:30	2023-01-10 14:13:19.278+05:30	\N
+9aacc94c-fec7-4655-b817-5f88f74ae220	ac7ab563-cb8b-4092-a7de-d0b5a3e83c43	0c7c5ed2-ecc7-4cf7-932d-725b4c78ce5c	option4	t	2023-01-10 14:13:53.773+05:30	2023-01-10 14:13:53.773+05:30	\N
+\.
+
+
+--
+-- Data for Name: group; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."group" (id, group_name, created_at, updated_at, deleted_at) FROM stdin;
+61082b96-0847-40e2-ab71-c81f9df36e0c	testing	2023-01-10 11:30:47.166+05:30	2023-01-10 11:30:47.166+05:30	2023-01-10 11:31:54.373+05:30
+68a5e109-a1b9-4b4d-aa95-2fca509432a0	gkmit	2023-01-10 13:02:24.492+05:30	2023-01-10 13:02:24.492+05:30	\N
+fddb3fe3-3740-4925-8b5c-95bb35280db9	jaipur-university	2023-01-10 15:19:08.995+05:30	2023-01-10 15:19:08.995+05:30	\N
+\.
+
+
+--
+-- Data for Name: group_user_mapping; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.group_user_mapping (id, group_id, user_id, created_at, updated_at, deleted_at) FROM stdin;
+cc4211f1-42a2-40bd-97df-2c81de0d7196	68a5e109-a1b9-4b4d-aa95-2fca509432a0	a5f6f88a-b944-4de4-a79e-a3a841652465	2023-01-10 13:03:41.132+05:30	2023-01-10 13:03:41.132+05:30	\N
+2ab94f8e-bf31-4269-814c-7eb387250e4c	68a5e109-a1b9-4b4d-aa95-2fca509432a0	ebbf0b9b-2e46-44c7-bb25-41bd06ba2206	2023-01-10 13:03:41.148+05:30	2023-01-10 13:03:41.148+05:30	\N
+e435e90e-5fc3-464f-934e-e9f09e6840f9	68a5e109-a1b9-4b4d-aa95-2fca509432a0	dd5a05d0-8ab0-4524-ab9f-9ea0daf32095	2023-01-10 13:03:41.161+05:30	2023-01-10 13:03:41.161+05:30	\N
+ee9ae963-737d-4d7f-a38b-e19ca5a9ac5b	fddb3fe3-3740-4925-8b5c-95bb35280db9	ef316b40-c3fa-432a-9091-761c1bfdedd6	2023-01-10 15:19:09.119+05:30	2023-01-10 15:19:09.119+05:30	\N
+df3a884e-aee0-4059-ad62-fda8cb8d43b7	fddb3fe3-3740-4925-8b5c-95bb35280db9	7a5bf55d-4a9b-4aa2-8dd9-3031e96dc018	2023-01-10 15:19:09.225+05:30	2023-01-10 15:19:09.225+05:30	\N
+208a60ec-af0a-4cbf-91b6-09cf092ad459	fddb3fe3-3740-4925-8b5c-95bb35280db9	a58d1c4b-9167-4a4a-9378-51bf34ec1a9c	2023-01-10 15:19:09.322+05:30	2023-01-10 15:19:09.322+05:30	\N
+\.
+
+
+--
+-- Data for Name: paper_set; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.paper_set (id, subject_id, paper_set_name, marks_per_question, negative_marks_per_question, created_at, updated_at, deleted_at, total_questions) FROM stdin;
+71648290-49b1-4eeb-88d8-9e6dab605124	6aff172b-3f24-4237-b883-2e2f584dd194	DSA-beta	4	1	2023-01-10 11:55:36.56+05:30	2023-01-10 11:55:36.56+05:30	2023-01-10 12:05:30.801+05:30	0
+70d9efa2-75fe-4959-afa5-ad80a7fc60a2	6aff172b-3f24-4237-b883-2e2f584dd194	DSA-beta	4	1	2023-01-10 12:06:54.823+05:30	2023-01-10 12:06:54.823+05:30	\N	0
+8d2f57ba-baef-434f-bffb-5da644361fd6	ac464385-c569-4cbd-9a06-028e7c700181	gk-beta	4	1	2023-01-10 12:15:12.914+05:30	2023-01-10 12:42:48.106+05:30	2023-01-10 12:43:44.247+05:30	0
+a7dd5612-b402-4131-af95-be92d82f90a8	ac464385-c569-4cbd-9a06-028e7c700181	gk-beta	4	1	2023-01-10 12:58:27.663+05:30	2023-01-10 13:00:04.176+05:30	\N	2
+\.
+
+
+--
+-- Data for Name: paper_set_question_answer_mapping; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.paper_set_question_answer_mapping (id, paper_set_id, question_answer_id, created_at, updated_at, deleted_at) FROM stdin;
+b0aae71e-7f1a-402c-a744-b06e031be009	8d2f57ba-baef-434f-bffb-5da644361fd6	b7bdbe82-c6d9-4b6a-8a78-b4d7705088c6	2023-01-10 12:15:24.023+05:30	2023-01-10 12:15:24.023+05:30	2023-01-10 12:42:17.149+05:30
+21b2ef72-6733-4183-9a85-f0d7ecc26c4e	8d2f57ba-baef-434f-bffb-5da644361fd6	0c7c5ed2-ecc7-4cf7-932d-725b4c78ce5c	2023-01-10 12:34:55.179+05:30	2023-01-10 12:34:55.179+05:30	2023-01-10 12:42:32.699+05:30
+a26c39d3-0182-4488-bde8-bfc9c05ed9f1	8d2f57ba-baef-434f-bffb-5da644361fd6	b520f17c-42cf-4135-8601-ed23afde0b7a	2023-01-10 12:34:55.191+05:30	2023-01-10 12:34:55.191+05:30	2023-01-10 12:42:48.101+05:30
+c023d699-0d9c-48dc-aa43-c74690bc4991	a7dd5612-b402-4131-af95-be92d82f90a8	b7bdbe82-c6d9-4b6a-8a78-b4d7705088c6	2023-01-10 13:00:04.158+05:30	2023-01-10 13:00:04.158+05:30	\N
+503a9e04-d641-41f0-a3e3-6d31bc66e511	a7dd5612-b402-4131-af95-be92d82f90a8	0c7c5ed2-ecc7-4cf7-932d-725b4c78ce5c	2023-01-10 13:00:04.172+05:30	2023-01-10 13:00:04.172+05:30	\N
+\.
+
+
+--
+-- Data for Name: question_answer; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.question_answer (id, question, option1, option2, option3, option4, correct_option, subject_id, created_at, updated_at, deleted_at) FROM stdin;
+59fd991f-2e62-4ce8-8ba9-7a3d56dc6a08	Why bioling point of water is low	high	low	upper	lower	option1	ac464385-c569-4cbd-9a06-028e7c700181	2023-01-10 10:18:04.829+05:30	2023-01-10 10:18:04.829+05:30	2023-01-10 11:22:24.809+05:30
+b7bdbe82-c6d9-4b6a-8a78-b4d7705088c6	Why bioling point of water is low	high	low	upper	lower	option1	ac464385-c569-4cbd-9a06-028e7c700181	2023-01-10 12:06:08.048+05:30	2023-01-10 12:06:08.048+05:30	\N
+0c7c5ed2-ecc7-4cf7-932d-725b4c78ce5c	What is process in bxbxhdbkd	opt1	opt2	opt3	opt4	option4	ac464385-c569-4cbd-9a06-028e7c700181	2023-01-10 12:23:20.719+05:30	2023-01-10 12:23:20.719+05:30	\N
+67ed3fb4-20d5-455c-afcb-131c4478ef7c	What is process in english	opt1	opt2	opt3	opt4	option3	ac464385-c569-4cbd-9a06-028e7c700181	2023-01-10 12:23:20.74+05:30	2023-01-10 12:23:20.74+05:30	\N
+b520f17c-42cf-4135-8601-ed23afde0b7a	What is Rest shjhhjsd	api	architecture	constraints	wbe app	option2	6aff172b-3f24-4237-b883-2e2f584dd194	2023-01-10 12:33:02.486+05:30	2023-01-10 12:33:02.486+05:30	\N
+03d5a008-bfde-49e2-86e8-52fdf6e89550	What is shjhhjsd	api	architecture	constraints	wbe app	option2	6aff172b-3f24-4237-b883-2e2f584dd194	2023-01-10 12:39:21.629+05:30	2023-01-10 12:39:21.629+05:30	\N
+\.
+
+
+--
+-- Data for Name: subject; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.subject (id, subject_name, created_at, updated_at, deleted_at) FROM stdin;
+ac464385-c569-4cbd-9a06-028e7c700181	gk	2023-01-09 23:46:37.401+05:30	2023-01-09 23:46:37.401+05:30	\N
+6aff172b-3f24-4237-b883-2e2f584dd194	DSA	2023-01-10 11:02:45.373+05:30	2023-01-10 11:02:45.373+05:30	\N
+\.
+
+
+--
+-- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."user" (id, first_name, last_name, email, password, organization, contact_number, role, created_at, updated_at, deleted_at) FROM stdin;
+c4e82470-b606-4b3a-9c84-b31ca8b607c6	Rosemary	Heaney	shyanne.kertzmann42@gmail.com	$2b$10$16Y9DF9y/xV74nxHzAQ4s.cI6/L4LXoD/o0xFoNsLGikT7W3FP08W	innovate impactful action-items	7987895418	admin	2023-01-09 22:59:45.586+05:30	2023-01-09 22:59:45.586+05:30	\N
+50c6acc0-de85-488a-9a6f-38cc3066caca	Ramesh	Singh	ramesham@mailinator.com	$2b$10$B651Xpf4xTPDDAc.xmC5z.RjDCQbRVTyeaLdMlgCIwMwUE1Pe1yDq	gkmit	5623245251	user	2023-01-09 23:04:48.199+05:30	2023-01-09 23:04:48.199+05:30	\N
+ebbf0b9b-2e46-44c7-bb25-41bd06ba2206	Ramesh	Singh	khushi@mailinator.com	$2b$10$7CI4cCDRm9GXwornlDqG.uUECbAAGd0VEDT0S7OYYl5W2Ltje/yp2	gkmit	5623245251	user	2023-01-09 23:06:49.419+05:30	2023-01-09 23:06:49.419+05:30	\N
+a5f6f88a-b944-4de4-a79e-a3a841652465	Manisha	Singh	manish@mailinator.com	$2b$10$/r0q36S4Gzrq7HSjGvElee1HXeS5KHowLlLRJqJssN3k8LswgAcgq	gkmit	5623245251	user	2023-01-10 10:16:05.273+05:30	2023-01-10 10:16:05.273+05:30	\N
+dd5a05d0-8ab0-4524-ab9f-9ea0daf32095	Manisha	Singh	manisha@mailinator.com	$2b$10$hlHVHBaGKlFcdZ5tZFuWbO84RpWv6oBHa9s7jPOy6n8wFzlabLrEi	gkmit	5623245251	user	2023-01-10 13:03:09.367+05:30	2023-01-10 13:03:09.367+05:30	\N
+ef316b40-c3fa-432a-9091-761c1bfdedd6	Hitesh	Chaudhary	hitesh@mailinator.com	$2b$10$THtqVhGNY6.4U.cg09q7Z.0HK5ebw4kW470Rj8Dnvu8tmx1UZeXQW	gkmit	8788767878	user	2023-01-10 15:19:09.111+05:30	2023-01-10 15:19:09.111+05:30	\N
+7a5bf55d-4a9b-4aa2-8dd9-3031e96dc018	yashika	gawali	yashika@mailinator.com	$2b$10$opj63fkeQrgbKJZI19XyEulskEKiEjytiWP3uuX1wfdnlvjQzJpbC	gkmit	7788556667	user	2023-01-10 15:19:09.218+05:30	2023-01-10 15:19:09.218+05:30	\N
+a58d1c4b-9167-4a4a-9378-51bf34ec1a9c	sachin	faujdar	faujdar@mailinator.com	$2b$10$OwPkOUz.XZF.Xon122L0FehJBoYqCcwD6fTWdOoKGVWapqJubALGm	gkmit	6676896562	user	2023-01-10 15:19:09.318+05:30	2023-01-10 15:19:09.318+05:30	\N
+a3102dab-52ae-4983-a814-acec66f28cc5	Ram	Singh	shreeram@mailinator.com	$2b$10$ftbqArCesnn.mfGhiJhxCekBwguZ/tEb/RhIBf/nX5dA0/zmRNlIW	gkmit	5623245251	user	2023-01-09 23:04:20.619+05:30	2023-01-09 23:04:20.619+05:30	2023-01-10 15:35:51.075+05:30
+\.
+
+
+--
+-- Name: SequelizeMeta SequelizeMeta_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SequelizeMeta"
+    ADD CONSTRAINT "SequelizeMeta_pkey" PRIMARY KEY (name);
+
+
+--
+-- Name: exam_group_mapping exam_group_mapping_exam_id_group_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_group_mapping
+    ADD CONSTRAINT exam_group_mapping_exam_id_group_id_key UNIQUE (exam_id, group_id);
+
+
+--
+-- Name: exam_group_mapping exam_group_mapping_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_group_mapping
+    ADD CONSTRAINT exam_group_mapping_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: exam exam_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam
+    ADD CONSTRAINT exam_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: exam_user_paper_set_mapping exam_user_paper_set_mapping_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_user_paper_set_mapping
+    ADD CONSTRAINT exam_user_paper_set_mapping_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: exam_user_paper_set_mapping exam_user_paper_set_mapping_user_id_exam_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_user_paper_set_mapping
+    ADD CONSTRAINT exam_user_paper_set_mapping_user_id_exam_id_key UNIQUE (user_id, exam_id);
+
+
+--
+-- Name: exam_user_response exam_user_response_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_user_response
+    ADD CONSTRAINT exam_user_response_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: group group_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."group"
+    ADD CONSTRAINT group_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: group_user_mapping group_user_mapping_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.group_user_mapping
+    ADD CONSTRAINT group_user_mapping_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: paper_set paper_set_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paper_set
+    ADD CONSTRAINT paper_set_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: paper_set_question_answer_mapping paper_set_question_answer_mapping_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paper_set_question_answer_mapping
+    ADD CONSTRAINT paper_set_question_answer_mapping_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: question_answer question_answer_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.question_answer
+    ADD CONSTRAINT question_answer_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: subject subject_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subject
+    ADD CONSTRAINT subject_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user user_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."user"
+    ADD CONSTRAINT user_email_key UNIQUE (email);
+
+
+--
+-- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."user"
+    ADD CONSTRAINT user_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: exam_group_mapping exam_group_mapping_exam_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_group_mapping
+    ADD CONSTRAINT exam_group_mapping_exam_id_fkey FOREIGN KEY (exam_id) REFERENCES public.exam(id);
+
+
+--
+-- Name: exam_group_mapping exam_group_mapping_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_group_mapping
+    ADD CONSTRAINT exam_group_mapping_group_id_fkey FOREIGN KEY (group_id) REFERENCES public."group"(id);
+
+
+--
+-- Name: exam exam_subject_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam
+    ADD CONSTRAINT exam_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subject(id);
+
+
+--
+-- Name: exam_user_paper_set_mapping exam_user_paper_set_mapping_exam_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_user_paper_set_mapping
+    ADD CONSTRAINT exam_user_paper_set_mapping_exam_id_fkey FOREIGN KEY (exam_id) REFERENCES public.exam(id);
+
+
+--
+-- Name: exam_user_paper_set_mapping exam_user_paper_set_mapping_paper_set_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_user_paper_set_mapping
+    ADD CONSTRAINT exam_user_paper_set_mapping_paper_set_id_fkey FOREIGN KEY (paper_set_id) REFERENCES public.paper_set(id);
+
+
+--
+-- Name: exam_user_paper_set_mapping exam_user_paper_set_mapping_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_user_paper_set_mapping
+    ADD CONSTRAINT exam_user_paper_set_mapping_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
+-- Name: exam_user_response exam_user_response_exam_user_attempt_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_user_response
+    ADD CONSTRAINT exam_user_response_exam_user_attempt_id_fkey FOREIGN KEY (exam_user_attempt_id) REFERENCES public.exam_user_paper_set_mapping(id);
+
+
+--
+-- Name: exam_user_response exam_user_response_question_answer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_user_response
+    ADD CONSTRAINT exam_user_response_question_answer_id_fkey FOREIGN KEY (question_answer_id) REFERENCES public.question_answer(id);
+
+
+--
+-- Name: group_user_mapping group_user_mapping_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.group_user_mapping
+    ADD CONSTRAINT group_user_mapping_group_id_fkey FOREIGN KEY (group_id) REFERENCES public."group"(id);
+
+
+--
+-- Name: group_user_mapping group_user_mapping_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.group_user_mapping
+    ADD CONSTRAINT group_user_mapping_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id);
+
+
+--
+-- Name: paper_set_question_answer_mapping paper_set_question_answer_mapping_paper_set_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paper_set_question_answer_mapping
+    ADD CONSTRAINT paper_set_question_answer_mapping_paper_set_id_fkey FOREIGN KEY (paper_set_id) REFERENCES public.paper_set(id);
+
+
+--
+-- Name: paper_set_question_answer_mapping paper_set_question_answer_mapping_question_answer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paper_set_question_answer_mapping
+    ADD CONSTRAINT paper_set_question_answer_mapping_question_answer_id_fkey FOREIGN KEY (question_answer_id) REFERENCES public.question_answer(id);
+
+
+--
+-- Name: paper_set paper_set_subject_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paper_set
+    ADD CONSTRAINT paper_set_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subject(id);
+
+
+--
+-- Name: question_answer question_answer_subject_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.question_answer
+    ADD CONSTRAINT question_answer_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subject(id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
